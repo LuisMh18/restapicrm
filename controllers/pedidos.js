@@ -1,14 +1,12 @@
-const Clientes = require('../models/Clientes');
+const Pedidos = require('../models/Pedidos');
 
 exports.create = async(req, res, next) => {
-    const cliente = new Clientes(req.body);
+    const pedido = new Pedidos(req.body);
 
     try {
         //almacenar registro
-        await cliente.save();
-        res.json({
-            mensaje: 'Se agrego un nuevo cliente'
-        });
+        await pedido.save();
+        res.json({ mensaje: 'Se agrego un nuevo pedido' });
     } catch(e){
         console.log(e);
         next();
@@ -18,8 +16,11 @@ exports.create = async(req, res, next) => {
 
 exports.findAll = async(req, res, next) => {
     try {
-        const clientes = await Clientes.find({});
-        res.json(clientes);
+        const pedidos = await Pedidos.find({}).populate('cliente').populate({
+            path:'pedido.producto',
+            model:'Productos'
+        });
+        res.json(pedidos);
     } catch(e){
         console.log(e);
         next();
@@ -29,12 +30,15 @@ exports.findAll = async(req, res, next) => {
 exports.findOne = async(req, res, next) => {
 
     try {
-        const cliente = await Clientes.findById(req.params.id);
-        if(!cliente){
-            res.json({mensaje: 'El cliente no existe'});
+        const pedido = await Pedidos.findById(req.params.id).populate('cliente').populate({
+            path:'pedido.producto',
+            model:'Productos'
+        });
+        if(!pedido){
+            res.json({mensaje: 'El pedido no existe'});
             return next();
         }
-        res.json(cliente);
+        res.json(pedido);
     } catch(e){
         console.log(e);
         next();
@@ -43,11 +47,15 @@ exports.findOne = async(req, res, next) => {
 
 exports.update = async(req, res, next) => {
     try{
-        const cliente = await Clientes.findOneAndUpdate({ _id: req.params.id }, req.body, {
+        const pedido = await Pedidos.findOneAndUpdate({ _id: req.params.id }, req.body, {
             new: true
-        });
+        }).populate('cliente')
+          .populate({
+                path:'pedido.producto',
+                model:'Productos'
+            });
 
-        res.json(cliente);
+        res.json(pedido);
 
     } catch(e){
         console.log(e);
@@ -57,8 +65,8 @@ exports.update = async(req, res, next) => {
 
 exports.delete = async(req, res, next) => {
     try{
-        await Clientes.findOneAndDelete({ _id: req.params.id });
-        res.json({mensaje: 'El cliente se ha eliminado'});
+        await Pedidos.findOneAndDelete({ _id: req.params.id });
+        res.json({mensaje: 'El pedido se ha eliminado'});
     } catch(e){
         console.log(e);
         next();
