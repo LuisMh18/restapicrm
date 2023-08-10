@@ -1,16 +1,12 @@
 const express = require('express');
-
 const router = express.Router();
+const clientes = require('../controllers/clientes');
 
 module.exports = function() {
 
-    router.get('/', (req, res) => {
-        res.send("iniico")
-    });
-
-    router.get('/nosotros', (req, res) => {
-        res.send("nosotros");
-    });
+    router.post('/clientes', clientes.create);
+    router.get('/clientes', clientes.findAll);
+    router.get('/clientes/:id', clientes.findOne);
     
     return router;
 }
